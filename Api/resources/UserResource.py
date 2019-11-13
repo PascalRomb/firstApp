@@ -14,7 +14,13 @@ class UserResource(Resource):
             session_id += (random.choice(string.digits + string.ascii_letters + string.punctuation))
         return session_id
 
-    def get(self):
+    def get(self, userid=None):
+        
+        if userid:
+            user = User.query.filter_by(id=userid).first()
+            user = user_schema.dump(user).data
+            return {'status': 'success', 'data' : user}, 200
+        
         users = User.query.all()
         users = users_schema.dump(users).data
         return {'status': 'success', 'data' : users}, 200
