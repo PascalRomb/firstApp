@@ -175,7 +175,7 @@ class _SignupPageState extends State<SignupPage>{
                     ),
                     padding: const EdgeInsets.all(10.0),
                     child: const Text(
-                      'Login',
+                      'Signup',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20)
                     ),
