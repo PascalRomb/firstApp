@@ -13,12 +13,26 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   
-  List<String> litems = ["1","2","Third","4","prova","suca", "sucone"];
+  List<String> litems = ["1","2","3","4","5","6", "7"];
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async{
-   litems.add((litems.length+1).toString());
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    
+    litems.insert(0, (litems.length+1).toString());
+
+    if(mounted)setState(() {});
     _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
   }
 
   @override
@@ -38,53 +52,28 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child:SmartRefresher(
               enablePullDown: true,
-              enablePullUp: false,
+              footer: ClassicFooter(),
               header: WaterDropHeader(),
-              footer: CustomFooter(
-              builder: (BuildContext context,LoadStatus mode){
-                Widget body ;
-                if(mode==LoadStatus.idle){
-                  body =  Text("pull up load");
-                }
-                else if(mode==LoadStatus.loading){
-                  body =  CupertinoActivityIndicator();
-                }
-                else if(mode == LoadStatus.failed){
-                  body = Text("Load Failed!Click retry!");
-                }
-                else if(mode == LoadStatus.canLoading){
-                  body = Text("release to load more");
-                }
-                else{
-                  body = Text("No more Data");
-                }
-                return Container(
-                  height: 55.0,
-                  child: Center(child:body),
-                );
-              },
-            ),
-            controller: _refreshController,
-            onRefresh: _onRefresh,
-            //onLoading: _onLoading,
-            child: ListView.builder(
-                itemCount: litems.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    onTap:() =>  print(litems[index]),
-                    title: Container(
-                      decoration: const BoxDecoration(
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              //onLoading: _onLoading, potrei usarlo per caricare volta per volta anzichè fare tutto insieme
+              child: ListView.builder(
+                  itemCount: litems.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      onTap:() =>  print(litems[index]),
+                      title: Container(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           color: Colors.red
+                        ),
+                        child: Center(child: Text(litems[index])),
+                        height: 100,
                       ),
-                      //color: Colors.red,
-                      child: Center(child: Text(litems[index])),
-                      height: 100,
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
             )
           ],
         )
