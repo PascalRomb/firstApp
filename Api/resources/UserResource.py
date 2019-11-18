@@ -14,12 +14,21 @@ class UserResource(Resource):
             session_id += (random.choice(string.digits + string.ascii_letters + string.punctuation))
         return session_id
 
-    def get(self, userid=None):
+    def get(self, username=None, email=None):
         
-        if userid:
-            user = User.query.filter_by(id=userid).first()
-            user = user_schema.dump(user).data
-            return {'status': 'success', 'data' : user}, 200
+        if username:
+            user = User.query.filter_by(username=username).first()
+            if(user):
+                user = user_schema.dump(user).data
+                return {'status': 'success', 'data' : user}, 200
+            return {'message': 'No user'}, 400
+        
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if(user):
+                user = user_schema.dump(user).data
+                return {'status': 'success', 'data' : user}, 200
+            return {'message': 'No user'}, 400
         
         users = User.query.all()
         users = users_schema.dump(users).data

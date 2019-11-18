@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:first_app/Models/user.dart';
+import 'package:first_app/Utils/Connector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -12,9 +15,12 @@ class SignupPage extends StatefulWidget{
 class _SignupPageState extends State<SignupPage>{
   
   final _formKey = GlobalKey<FormState>();
+
   final double _margin = 30;
   bool _pressed = true;
-  User user;
+  bool _username_exists = false;
+  bool _email_exists = false;
+  User user = new User();
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +34,20 @@ class _SignupPageState extends State<SignupPage>{
   void _setPwd(){
     setState(() {   
       _pressed = !_pressed;
+    });
+  }
+
+  Future userExists(String type, String userAttribute) async {
+    await Connector.getUserBy(type, userAttribute).then((response){
+      if(response.statusCode == 200)
+        if(type == "email")
+        setState(() {
+          _email_exists = true;
+        });
+        else if (type == "username")
+          setState(() {
+            _username_exists = true;          
+          }); 
     });
   }
 
@@ -86,10 +106,18 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin, top: _margin),
               child: TextFormField(
-                validator: (value) {
+                validator: (value){
                   if(value.isEmpty){
                     return "Please enter Email!";
                   }
+              
+                  if(_email_exists){
+                    setState(() {
+                    _email_exists = false;                      
+                    });
+                    return("Email already exists!");
+                  }
+                  
                   return null;
                 },
                 onSaved: (value) => user.email = value,
@@ -108,6 +136,12 @@ class _SignupPageState extends State<SignupPage>{
                 validator: (value) {
                   if(value.isEmpty){
                     return "Please enter Username!";
+                  }
+                  if(_username_exists){
+                    setState(() {                      
+                    _username_exists = false;
+                    });
+                    return("Username already exists!");
                   }
                   return null;
                 },
@@ -151,13 +185,16 @@ class _SignupPageState extends State<SignupPage>{
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if(_formKey.currentState.validate()){
                       _formKey.currentState.save();
+                      await userExists("username", user.username);
+                      await userExists("email", user.email); 
+                      _formKey.currentState.validate();
+                      var response = await Connector.signupUser(user.toJson());
+                      if(response.statusCode == 201) //created, no problem
+                        Navigator.pushNamed(context, "/");
                     }
-                    //post to login
-                    //print(_username + ":" + _password);
-                    Navigator.pushNamed(context, "/");
                   },
                   textColor: Colors.white,
                   padding: const EdgeInsets.all(0),
@@ -206,8 +243,7 @@ class _SignupPageState extends State<SignupPage>{
             ),
           ],
         ),
-      ),
-      
+      ), 
     );
   }
 }

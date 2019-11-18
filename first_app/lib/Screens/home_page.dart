@@ -1,3 +1,5 @@
+import 'package:first_app/Models/user.dart';
+import 'package:first_app/Utils/Connector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -11,18 +13,19 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>{
   
-  List<String> litems = ["1","2","3","4","5","6", "7"];
+  List<User> users;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async{
     // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
-    
-    litems.insert(0, (litems.length+1).toString());
-
-    if(mounted)setState(() {});
+    //await Future.delayed(Duration(milliseconds: 1000));
+    users = await Connector.listAllUsers();
+    //users.insert(0, (users.length+1).toString());
+    if(mounted)setState((){
+      
+    });
     _refreshController.refreshCompleted();
   }
 
@@ -33,6 +36,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // if failed,use loadFailed(),if no data return,use LoadNodata()
     if (mounted) setState(() {});
     _refreshController.loadComplete();
+  }
+
+  _getListLength(){
+    if(users != null) return users.length;
+    return 0;
   }
 
   @override
@@ -58,16 +66,20 @@ class _MyHomePageState extends State<MyHomePage> {
               onRefresh: _onRefresh,
               //onLoading: _onLoading, potrei usarlo per caricare volta per volta anzichè fare tutto insieme
               child: ListView.builder(
-                  itemCount: litems.length,
+                  itemCount: _getListLength(), //non mi piace ma non trovo altro
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
-                      onTap:() =>  print(litems[index]),
+                      onTap:() {  
+                        //print(users[index]);
+                        //Connector.listAllUsers();
+                      },
                       title: Container(
+                        padding: EdgeInsets.all(10),
                         decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           color: Colors.red
                         ),
-                        child: Center(child: Text(litems[index])),
+                        child:  Text(users[index].username + " says: "),
                         height: 100,
                       ),
                     );
