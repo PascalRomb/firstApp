@@ -205,7 +205,7 @@ class _SignupPageState extends State<SignupPage>{
                       if(_formKey.currentState.validate()) {  
                         var response = await Connector.signupUser(user.toJson());
                         if(response.statusCode == 201)
-                          Navigator.pushNamed(context, "/");
+                          Navigator.pushNamed(context, "/", arguments: user); //passo user così ho l'id per fare i post
                       }
                     }
                   },

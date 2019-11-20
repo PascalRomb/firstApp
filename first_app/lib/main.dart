@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/signup',
       routes: {
-        '/' : (context) => MyHomePage(title: "Pets!"),
+        '/' : (context) => MyHomePage(title: "HomePage!", user: ModalRoute.of(context).settings.arguments),
         '/login' : (context) => LoginPage(title: "Login!"),
         '/signup' : (context) => SignupPage(title: "Signup!"),
       },

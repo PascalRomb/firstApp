@@ -6,9 +6,10 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title, this.user}) : super(key: key);
   final String title;
-
+  final User user;
+  
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -16,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>{
   
   List<User> users;
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  RefreshController _refreshController = RefreshController(initialRefresh: true);
 
   void _onRefresh() async{
     // monitor network fetch
@@ -43,6 +44,12 @@ class _MyHomePageState extends State<MyHomePage>{
     return 0;
   }
 
+  //idea for id
+  _getText(){
+    if (widget.user != null) return widget.user.toJson().toString();
+    return "titolino";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -55,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage>{
                       borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
                       color: Colors.blue
                   ),
-                  child: Center(child: Text("altro container"))
+                  child: Center(child: Text( _getText())) //idea for id
             ),
             Expanded(
               child:SmartRefresher(
