@@ -2,9 +2,6 @@ import 'package:first_app/Models/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
-
-//dovrebbe essere un singleton in dart
 class Connector{
   static var url = "http://192.168.1.31:5000/api";
 

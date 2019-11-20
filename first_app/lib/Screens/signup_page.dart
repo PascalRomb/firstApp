@@ -1,9 +1,11 @@
-import 'dart:convert';
-
-import 'package:first_app/Models/user.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:first_app/Utils/Connector.dart';
+import 'package:first_app/Models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class SignupPage extends StatefulWidget{
   final String title;
@@ -68,6 +70,7 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin),
               child: TextFormField(
+                inputFormatters: [LengthLimitingTextInputFormatter(45)],
                 validator: (value) {
                   if(value.isEmpty){
                     return "Please enter Firstname!";
@@ -87,6 +90,7 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin, top: _margin),
               child: TextFormField(
+                inputFormatters: [LengthLimitingTextInputFormatter(45)],
                 validator: (value) {
                   if(value.isEmpty){
                     return "Please enter Lastname!";
@@ -106,18 +110,19 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin, top: _margin),
               child: TextFormField(
+                inputFormatters: [LengthLimitingTextInputFormatter(45)],
                 validator: (value){
                   if(value.isEmpty){
                     return "Please enter Email!";
                   }
-              
+                  if(! EmailValidator.validate(value))
+                    return "Please enter valid Email";
                   if(_email_exists){
                     setState(() {
                     _email_exists = false;                      
                     });
                     return("Email already exists!");
                   }
-                  
                   return null;
                 },
                 onSaved: (value) => user.email = value,
@@ -133,10 +138,14 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin, top: _margin),
               child: TextFormField(
+                inputFormatters: [LengthLimitingTextInputFormatter(45)],
                 validator: (value) {
                   if(value.isEmpty){
                     return "Please enter Username!";
                   }
+                  if(value.contains("/"))
+                    return ("Username cannot contains /");
+
                   if(_username_exists){
                     setState(() {                      
                     _username_exists = false;
@@ -158,12 +167,15 @@ class _SignupPageState extends State<SignupPage>{
             Container(
               margin: EdgeInsets.only(right: _margin, left: _margin, top: _margin),
               child: TextFormField(
+                inputFormatters: [LengthLimitingTextInputFormatter(64)],
                 validator: (value) {
                   if(value.isEmpty) return "Please enter Password!";
                   if(value.length < 8) return "Password at least 8 character";
                   return null;
                 },
-                onSaved: (value) => user.password=value,
+                onSaved: (value){ 
+                  user.password = sha256.convert(utf8.encode(value)).toString(); 
+                },
                 obscureText: _pressed,
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -189,11 +201,12 @@ class _SignupPageState extends State<SignupPage>{
                     if(_formKey.currentState.validate()){
                       _formKey.currentState.save();
                       await userExists("username", user.username);
-                      await userExists("email", user.email); 
-                      _formKey.currentState.validate();
-                      var response = await Connector.signupUser(user.toJson());
-                      if(response.statusCode == 201) //created, no problem
-                        Navigator.pushNamed(context, "/");
+                      await userExists("email", user.email);
+                      if(_formKey.currentState.validate()) {  
+                        var response = await Connector.signupUser(user.toJson());
+                        if(response.statusCode == 201)
+                          Navigator.pushNamed(context, "/");
+                      }
                     }
                   },
                   textColor: Colors.white,
