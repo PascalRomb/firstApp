@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      initialRoute: '/signup',
+      initialRoute: '/',
       routes: {
         '/' : (context) => MyHomePage(title: "HomePage!", user: ModalRoute.of(context).settings.arguments),
         '/login' : (context) => LoginPage(title: "Login!"),
