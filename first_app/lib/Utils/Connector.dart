@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Connector{
-  static var url = "http://192.168.1.31:5000/api";
+  static var url = "http://192.168.1.37:5000/api"; //change this.
 
   //Users
   static Future<List<User>> listAllUsers() async {
