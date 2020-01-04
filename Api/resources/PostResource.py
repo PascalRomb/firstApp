@@ -54,6 +54,7 @@ class PostResource(Resource):
         if(post == None): 
             return {'message': 'Post not exists'}, 204
 
+        #add swipe and update
         post.swipe += 1
         db.session.commit()
         
